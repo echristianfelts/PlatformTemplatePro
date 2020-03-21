@@ -17,7 +17,15 @@ public class Player : MonoBehaviour
     public int dJumpFlag = 0;
     private float _gravityLoops = .1f;
 
+    public int score = 0;
+
+    [SerializeField]
+    private UI_Manager _uiManager;
+
     private Vector3 moveDirection = Vector3.zero;
+
+    // variable for player coins
+
 
 
     // Start is called before the first frame update
@@ -25,6 +33,8 @@ public class Player : MonoBehaviour
     {
         _controller = GetComponent<CharacterController>();
         yVelocity = -maxGravity;
+        _uiManager = GameObject.Find("Canvas").GetComponent<UI_Manager>();
+
     }
 
     // Update is called once per frame
@@ -68,7 +78,20 @@ public class Player : MonoBehaviour
 
         _controller.Move(moveDirection *Time.deltaTime);
 
+        //TotalCoins(1);
+
 
 
     }
+
+
+    public void TotalCoins(int EnemyPointValue)
+    {
+        score += EnemyPointValue;
+        _uiManager.UpdateScore(score);
+
+
+    }
+
+
 }
