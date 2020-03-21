@@ -8,10 +8,14 @@ public class Player : MonoBehaviour
 
     public float horizontalInput;
     public float verticalInput;
+    public float yVelocity;
 
     public float speed = 6.0f;
-    public float jumpSpeed = 8.0f;
-    public float gravity = 20.0f;
+    public float jumpSpeed = 10.0f;
+    public float maxGravity = 5.0f;
+    public float gravity = 1f;
+    public int dJumpFlag = 0;
+    private float _gravityLoops = .1f;
 
     private Vector3 moveDirection = Vector3.zero;
 
@@ -20,19 +24,45 @@ public class Player : MonoBehaviour
     void Start()
     {
         _controller = GetComponent<CharacterController>();
+        yVelocity = -maxGravity;
     }
 
     // Update is called once per frame
     void Update()
     {
 
+        // reset vert velocity
+        if (yVelocity > -maxGravity)
+        {
+            yVelocity -= (gravity + _gravityLoops);
+            _gravityLoops += .1f;
+        }
+        else
+        { _gravityLoops = .1f; }
+
 
         // get horiz input
 
         horizontalInput = Input.GetAxis("Horizontal");
         horizontalInput *= speed;
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            if (_controller.isGrounded == true || dJumpFlag != 1)
+            {
+                yVelocity = jumpSpeed;
+                if (dJumpFlag != 1)
+                {
+                    dJumpFlag = 1;
+                }
+            }
+        }
+        if (_controller.isGrounded == true)
+        {
+            dJumpFlag = 0;
+        }
+
         // define move based on input
-        moveDirection = new Vector3(horizontalInput, 0.0f, 0.0f);
+            moveDirection = new Vector3(horizontalInput, yVelocity, 0.0f);
 
         //  move in that dir
 
