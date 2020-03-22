@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+    public GameObject startPos;
+   
     private CharacterController _controller;
 
     public float horizontalInput;
@@ -21,6 +23,8 @@ public class Player : MonoBehaviour
 
     [SerializeField]
     private UI_Manager _uiManager;
+    [SerializeField]
+    private int _lives = 3;
 
     private Vector3 moveDirection = Vector3.zero;
 
@@ -31,10 +35,11 @@ public class Player : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        this.transform.position = startPos.transform.position;
         _controller = GetComponent<CharacterController>();
         yVelocity = -maxGravity;
         _uiManager = GameObject.Find("Canvas").GetComponent<UI_Manager>();
-
+        _uiManager.UpdateLivesDisplay(_lives);
     }
 
     // Update is called once per frame
@@ -72,13 +77,18 @@ public class Player : MonoBehaviour
         }
 
         // define move based on input
-            moveDirection = new Vector3(horizontalInput, yVelocity, 0.0f);
+        moveDirection = new Vector3(horizontalInput, yVelocity, 0.0f);
 
         //  move in that dir
 
         _controller.Move(moveDirection *Time.deltaTime);
 
         //TotalCoins(1);
+
+        if (transform.position.y < -6f)
+        {
+            TotalLives(_lives);
+        }
 
 
 
@@ -92,6 +102,21 @@ public class Player : MonoBehaviour
 
 
     }
+
+    public void TotalLives(int lives)
+    {
+        lives -= 1;
+        if (lives < 0)
+        {
+            lives = 0;
+            //And other stuff, later...
+
+        }
+        transform.position = startPos.transform.position;
+        _uiManager.UpdateLivesDisplay(score);
+
+    }
+
 
 
 }
