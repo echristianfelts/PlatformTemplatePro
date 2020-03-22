@@ -88,7 +88,7 @@ public class Player : MonoBehaviour
     public void TotalCoins(int EnemyPointValue)
     {
         score += EnemyPointValue;
-        _uiManager.UpdateScore(score);
+        _uiManager.UpdateCoinDisplay(score);
 
 
     }

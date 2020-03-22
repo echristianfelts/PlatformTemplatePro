@@ -17,7 +17,7 @@ public class UI_Manager : MonoBehaviour
 
 
 
-    public void UpdateScore(int playerScore)
+    public void UpdateCoinDisplay(int playerScore)
     {
 
         _scoreText.text = "Collected Coins: " + playerScore.ToString();

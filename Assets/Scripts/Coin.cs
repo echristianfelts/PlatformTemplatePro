@@ -4,12 +4,12 @@ using UnityEngine;
 
 public class Coin : MonoBehaviour
 {
-    private Player _player;
+    // private Player _player;
 
     // Start is called before the first frame update
     void Start()
     {
-        _player = GameObject.Find("Player").GetComponent<Player>();
+        // _player = GameObject.Find("Player").GetComponent<Player>();
 
     }
 
@@ -21,8 +21,16 @@ public class Coin : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        _player.TotalCoins(1);
-        Destroy(this.gameObject);
+        if (other.tag == "Player")
+        {
+            Player _player = other.GetComponent<Player>();
+
+            if (_player != null)
+            {
+                _player.TotalCoins(1);
+            }
+            Destroy(this.gameObject);
+        }
 
     }
 }
