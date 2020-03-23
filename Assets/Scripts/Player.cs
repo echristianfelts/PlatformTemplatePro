@@ -1,12 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour
 {
     public GameObject startPos;
    
     private CharacterController _controller;
+    // CharacterController cc;
 
     public float horizontalInput;
     public float verticalInput;
@@ -35,11 +37,13 @@ public class Player : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        _lives = 3;
         this.transform.position = startPos.transform.position;
         _controller = GetComponent<CharacterController>();
         yVelocity = -maxGravity;
         _uiManager = GameObject.Find("Canvas").GetComponent<UI_Manager>();
         _uiManager.UpdateLivesDisplay(_lives);
+        CharacterController cc = this.GetComponent<CharacterController>();
     }
 
     // Update is called once per frame
@@ -87,8 +91,16 @@ public class Player : MonoBehaviour
 
         if (transform.position.y < -6f)
         {
-            TotalLives(_lives);
+            Damage();
         }
+
+
+        //if (_controller != null)
+        //{
+
+        //    _controller.enabled = true;
+
+        //}
 
 
 
@@ -103,17 +115,35 @@ public class Player : MonoBehaviour
 
     }
 
-    public void TotalLives(int lives)
+    public void Damage()
     {
-        lives -= 1;
-        if (lives < 0)
+        Debug.Log("Damage Starting..!");
+        _lives -= 1;
+        if (_lives < 0)
         {
-            lives = 0;
+            _lives = 3;    
+            SceneManager.LoadScene(0);
+
             //And other stuff, later...
 
         }
         transform.position = startPos.transform.position;
-        _uiManager.UpdateLivesDisplay(score);
+        _uiManager.UpdateLivesDisplay(_lives);
+        _controller.enabled = false;
+        StartCoroutine(CCEnableTimer(_controller));
+        Debug.Log("Damage Ending..!");
+
+
+    }
+
+    IEnumerator CCEnableTimer(CharacterController controller)
+    {
+        Debug.Log("IEnumerator Enabled..!");
+        //controller.enabled = false;
+        yield return new WaitForSeconds(0.5f);
+        controller.enabled = true;
+        Debug.Log("IEnumerator Ending..!");
+
 
     }
 
