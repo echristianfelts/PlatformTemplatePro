@@ -4,47 +4,56 @@ using UnityEngine;
 
 public class MovingPlatform : MonoBehaviour
 {
-    public Transform _TargetA, _TargetB;
-    private Transform _targetPos;
-    public float _speed = 1.0f;
+    [SerializeField]
+    private Transform _targetA, _targetB;
+    [SerializeField]
+    private float _speed = 3.0f;
+    private bool _switching = false;
 
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        _targetPos = _TargetB;
-    }
 
     // Update is called once per frame
     void FixedUpdate()
     {
-
-        transform.position = Vector3.MoveTowards(transform.position, _targetPos.position, Time.deltaTime * _speed);
-        if (this.transform.position == _targetPos.position)
+        if (_switching == false)
         {
-            if(_targetPos == _TargetB)
-            {
-                _targetPos = _TargetA;
-            } else
-            {
-                _targetPos = _TargetB;
-            }
+
+            transform.position = Vector3.MoveTowards(transform.position, _targetB.position, _speed * Time.deltaTime);
+        }
+        else if (_switching == true)
+        {
+            transform.position = Vector3.MoveTowards(transform.position, _targetA.position, _speed * Time.deltaTime);
         }
 
+        if (transform.position == _targetB.position)
+        {
+            _switching = true;
+        }
+        else if (transform.position == _targetA.position)
+        {
+            _switching = false;
+        }
     }
 
-    void OnTriggerEnter(Collider other)
+    //collison detection with player
+    //if we collide with player
+    //take the player parent = this game object
+    private void OnTriggerEnter(Collider other)
     {
-        Debug.Log("Entered Moving Platform Trigger.");
-
         if (other.tag == "Player")
         {
             other.transform.parent = this.transform;
         }
     }
 
-    void OnTriggerExit(Collider other)
+    private void OnTriggerExit(Collider other)
     {
-        other.transform.parent = null;
+        if (other.tag == "Player")
+        {
+            other.transform.parent = null;
+        }
     }
+
+    //exit collision 
+    //check if the player exited
+    //take the player parent = null 
 }
