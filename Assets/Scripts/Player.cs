@@ -5,148 +5,124 @@ using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour
 {
-    public GameObject startPos;
-   
     private CharacterController _controller;
-    // CharacterController cc;
-
-    public float horizontalInput;
-    public float verticalInput;
-    public float yVelocity;
-
-    public float speed = 6.0f;
-    public float jumpSpeed = 10.0f;
-    public float maxGravity = 5.0f;
-    public float gravity = 1f;
-    public int dJumpFlag = 0;
-    private float _gravityLoops = .1f;
-
-    public int score = 0;
-
     [SerializeField]
-    private UI_Manager _uiManager;
+    private float _speed = 5.0f;
+    [SerializeField]
+    private float _gravity = 1.0f;
+    [SerializeField]
+    private float _jumpHeight = 15.0f;
+    private float _yVelocity;
+    private bool _canDoubleJump = false;
+    [SerializeField]
+    private int _coins;
+    private UIManager _uiManager;
     [SerializeField]
     private int _lives = 3;
-
-    private Vector3 moveDirection = Vector3.zero;
-
-    // variable for player coins
-
-
+    public int coins;
+    private Vector3 direction;
+    private Vector3 velocity;
+    private bool _canWallJump = false;
+    private Vector3 _wallSurfaceNormal;
 
     // Start is called before the first frame update
     void Start()
     {
-        _lives = 3;
-        this.transform.position = startPos.transform.position;
         _controller = GetComponent<CharacterController>();
-        yVelocity = -maxGravity;
-        _uiManager = GameObject.Find("Canvas").GetComponent<UI_Manager>();
+        _uiManager = GameObject.Find("Canvas").GetComponent<UIManager>();
+
+        if (_uiManager == null)
+        {
+            Debug.LogError("The UI Manager is NULL."); 
+        }
+
         _uiManager.UpdateLivesDisplay(_lives);
-        CharacterController cc = this.GetComponent<CharacterController>();
     }
 
     // Update is called once per frame
     void Update()
     {
-
-        // reset vert velocity
-        if (yVelocity > -maxGravity)
-        {
-            yVelocity -= (gravity + _gravityLoops);
-            _gravityLoops += .1f;
-        }
-        else
-        { _gravityLoops = .1f; }
+        float horizontalInput = Input.GetAxis("Horizontal");
 
 
-        // get horiz input
-
-        horizontalInput = Input.GetAxis("Horizontal");
-        horizontalInput *= speed;
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            if (_controller.isGrounded == true || dJumpFlag != 1)
-            {
-                yVelocity = jumpSpeed;
-                if (dJumpFlag != 1)
-                {
-                    dJumpFlag = 1;
-                }
-            }
-        }
         if (_controller.isGrounded == true)
         {
-            dJumpFlag = 0;
+            _canWallJump = true;
+            direction = new Vector3(horizontalInput, 0, 0);
+            velocity = direction * _speed;
+
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                _yVelocity = _jumpHeight;
+                _canDoubleJump = false;
+            }
+
         }
-
-        // define move based on input
-        moveDirection = new Vector3(horizontalInput, yVelocity, 0.0f);
-
-        //  move in that dir
-
-        _controller.Move(moveDirection *Time.deltaTime);
-
-        //TotalCoins(1);
-
-        if (transform.position.y < -6f)
+        else
         {
-            Damage();
+            if (Input.GetKeyDown(KeyCode.Space) && _canWallJump == false)
+            {
+                if (_canDoubleJump == true)
+                {
+                    _yVelocity += _jumpHeight;
+                    _canDoubleJump = false;
+                }
+            }
+
+            if (Input.GetKeyDown(KeyCode.Space) && _canWallJump == true)
+            {
+                _yVelocity = _jumpHeight;
+                velocity = _wallSurfaceNormal * _speed;
+                //velocity = surfacenormal of wall.
+
+            }
+
+            _yVelocity -= _gravity;
         }
+        velocity.y = _yVelocity;
+
+        _controller.Move(velocity * Time.deltaTime);
 
 
-        //if (_controller != null)
-        //{
+    }
 
-        //    _controller.enabled = true;
+    private void OnControllerColliderHit(ControllerColliderHit hit)
+    {
 
-        //}
-
+        //if not grounded and not touching a wall
+        if (_controller.isGrounded == false && hit.transform.tag == "Wall")
+        {
+            Debug.Log("Player is hitting somthing...!!!");
+            Debug.DrawRay(hit.point, hit.normal, Color.blue);
+            _wallSurfaceNormal = hit.normal;
+            _canWallJump = true;
+        }
 
 
     }
 
 
-    public void TotalCoins(int EnemyPointValue)
+    public void AddCoins()
     {
-        score += EnemyPointValue;
-        _uiManager.UpdateCoinDisplay(score);
-
-
+        _coins++;
+        coins = _coins;
+        _uiManager.UpdateCoinDisplay(_coins);
     }
 
     public void Damage()
     {
-        Debug.Log("Damage Starting..!");
-        _lives -= 1;
-        if (_lives < 0)
-        {
-            _lives = 3;    
-            SceneManager.LoadScene(0);
+        _lives--;
 
-            //And other stuff, later...
-
-        }
-        transform.position = startPos.transform.position;
         _uiManager.UpdateLivesDisplay(_lives);
-        _controller.enabled = false;
-        StartCoroutine(CCEnableTimer(_controller));
-        Debug.Log("Damage Ending..!");
 
-
+        if (_lives < 1)
+        {
+            SceneManager.LoadScene(0);
+        }
     }
 
-    IEnumerator CCEnableTimer(CharacterController controller)
+    public int CoinCount()
     {
-        Debug.Log("IEnumerator Enabled..!");
-        //controller.enabled = false;
-        yield return new WaitForSeconds(0.5f);
-        controller.enabled = true;
-        Debug.Log("IEnumerator Ending..!");
-
-
+        return _coins;
     }
-
-
-
 }
