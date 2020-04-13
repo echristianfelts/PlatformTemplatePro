@@ -24,6 +24,7 @@ public class Player : MonoBehaviour
     private Vector3 velocity;
     private bool _canWallJump = false;
     private Vector3 _wallSurfaceNormal;
+    private float _pushPower = 2.0f;
 
     // Start is called before the first frame update
     void Start()
@@ -54,7 +55,7 @@ public class Player : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.Space))
             {
                 _yVelocity = _jumpHeight;
-                _canDoubleJump = false;
+                _canDoubleJump = true;
             }
 
         }
@@ -88,6 +89,29 @@ public class Player : MonoBehaviour
 
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
+        //check for the moving box.
+        if (hit.transform.tag == "Movable")
+        {
+            //confirm it has a rigid body
+            Rigidbody box = hit.collider.GetComponent<Rigidbody>();
+
+            if (box != null)
+            {
+                Vector3 pushDirection = new Vector3(hit.moveDirection.x,0,0);
+
+                // apply push
+                box.velocity = pushDirection * _pushPower;
+
+            }
+
+        }
+        //
+        //declare Pushpower as variable on top.
+
+        //calculate new move direction
+
+        //push..!!  (using moving box velocity...)
+
 
         //if not grounded and not touching a wall
         if (_controller.isGrounded == false && hit.transform.tag == "Wall")
