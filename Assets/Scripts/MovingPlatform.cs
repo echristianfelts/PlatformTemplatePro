@@ -8,12 +8,20 @@ public class MovingPlatform : MonoBehaviour
     private Transform _targetA, _targetB;
     [SerializeField]
     private float _speed = 3.0f;
-    private bool _switching = false;
+    private Transform _targetPos;
+
+    // private bool _switching = false;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        _targetPos = _targetB;
+    }
 
 
     // Update is called once per frame
     void FixedUpdate()
-    {
+    {/*
         if (_switching == false)
         {
 
@@ -31,6 +39,21 @@ public class MovingPlatform : MonoBehaviour
         else if (transform.position == _targetA.position)
         {
             _switching = false;
+        }
+
+        */
+
+        transform.position = Vector3.MoveTowards(transform.position, _targetPos.position, Time.deltaTime * _speed);
+        if (this.transform.position == _targetPos.position)
+        {
+            if (_targetPos == _targetB)
+            {
+                _targetPos = _targetA;
+            }
+            else
+            {
+                _targetPos = _targetB;
+            }
         }
     }
 
