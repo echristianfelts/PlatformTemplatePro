@@ -3041,7 +3041,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _speed: 15
-  _gravity: 1
+  _gravity: 3
   _jumpHeight: 20
   _coins: 0
   _lives: 3
